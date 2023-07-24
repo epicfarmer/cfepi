@@ -34,7 +34,6 @@ namespace cfepi {
    * needed to update that state.
    */
   template <typename states_t, typename any_event> struct filtration_setup {
-    /*
     using event_filter_fun_type = std::function<bool(const any_event &, const sir_state<states_t> &,
                                                      std::default_random_engine &)>;
     using state_filter_fun_type
@@ -42,12 +41,13 @@ namespace cfepi {
                              const sir_state<states_t> &, std::default_random_engine &)>;
     using state_modify_fun_type
         = std::function<void(sir_state<states_t> &, std::default_random_engine &)>;
-    */
-    using event_filter_fun_type = typename (*bool)(const any_event &, const sir_state<states_t> &,
+    /*
+    using event_filter_fun_type = typedef (*bool)(const any_event &, const sir_state<states_t> &,
 					  std::default_random_engine &);
-    using state_filter_fun_type = typename (*bool)(const filtration_setup<states_t, any_event> &,
+    using state_filter_fun_type = typedef (*bool)(const filtration_setup<states_t, any_event> &,
 					  const sir_state<states_t> &, std::default_random_engine &);
-    using state_modify_fun_type = typename (*void)(sir_state<states_t> &, std::default_random_engine &);
+    using state_modify_fun_type = typedef (*void)(sir_state<states_t> &, std::default_random_engine &);
+    */
     using filtration_tuple
         = std::tuple<event_filter_fun_type, state_filter_fun_type, state_modify_fun_type>;
 
@@ -134,10 +134,11 @@ namespace cfepi {
           const auto &state = setups_by_filter[std::get<0>(x)].current_state;
           std::in_place_index_t<event_index> variant_index{};
           const any_event event(variant_index, std::get<1>(x));
+	  std::cout << "Here\n";
           return (filter(event, state, random_source_1));
         });
 
-    for (const auto x : sampled_events_by_setup_view) {
+    for (const auto x : filtered_events_by_setup_view) {
       auto &setup = setups_by_filter[std::get<0>(x)];
       if (any_state_check_preconditions<any_event_type, states_t>{setup.current_state}(
               std::get<1>(x))) {
@@ -156,6 +157,7 @@ namespace cfepi {
            &event_probabilities, &simulation_seed](const auto event_index) {
             simulation_seed = random_source_1();
             // ++simulation_seed;
+	    std::cout << "Running for event type " << event_index << "\n";
             single_event_type_run<states_t, any_event_type, any_event>(
                 all_event_types, setups_by_filter, random_source_1, current_state,
                 event_probabilities, event_index, simulation_seed);

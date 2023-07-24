@@ -25,6 +25,7 @@ public:
       std::begin(state_array), std::find_if(std::begin(state_array), std::end(state_array),
 the_lambda))));
   }
+  constexpr std::string_view operator[](size_t idx) const { return state_array[idx]; }
   constexpr config_epidemic_states() : state_array(){};
   constexpr explicit config_epidemic_states(std::array<std::string_view, num_states> state_array_)
     : state_array(state_array_){};
@@ -122,15 +123,11 @@ std::string_view json)
 
   std::string_view source_json =
     std::get<1>(daw::json::json_details::find_range<NoCommentSkippingPolicyChecked>(json,
-"source"));
-std::string_view destination_json =
+"source")); std::string_view destination_json =
     std::get<1>(daw::json::json_details::find_range<NoCommentSkippingPolicyChecked>(json,
-"destination"));
-  return (
-    cfepi::sir_event_type<states_t, event_type_size>{
+"destination")); return (cfepi::sir_event_type<states_t, event_type_size>{
     parse_json_event_type_all_sources<states_t, event_type_size>(states, source_json),
-    parse_json_event_type_destination<states_t, event_type_size>(states, destination_json) }
-  );
+    parse_json_event_type_destination<states_t, event_type_size>(states, destination_json) });
 };
 
 template<typename states_t, size_t num_events>
@@ -429,16 +426,14 @@ namespace cfepi {
   template <const std::string_view &json_config>
   void run_simulation_from_config(epidemic_time_t epidemic_length [[maybe_unused]] = 365,
                                   size_t simulation_seed [[maybe_unused]] = 2) {
+    /*
     constexpr auto states_size =
       daw::json::parse_json_array_size<std::string_view>(daw::json::parse_json_select(json_config,
-    "states"));
-    constexpr auto states_arr = daw::json::parse_json_array_values<std::string_view,
-    states_size>( daw::json::parse_json_select(json_config, "states"));
-    constexpr cfepi::config_epidemic_states<states_size> states(states_arr);
-    constexpr auto num_event_types =
+    "states")); constexpr auto states_arr = daw::json::parse_json_array_values<std::string_view,
+    states_size>( daw::json::parse_json_select(json_config, "states")); constexpr
+    cfepi::config_epidemic_states<states_size> states(states_arr); constexpr auto num_event_types =
       daw::json::parse_json_array_size<daw::json::json_delayed<daw::json::no_name,
-    std::string_view>>( daw::json::parse_json_select(json_config, "events"));
-    constexpr
+    std::string_view>>( daw::json::parse_json_select(json_config, "events")); constexpr
     std::array<size_t, num_event_types> event_sizes =
       daw::json::parse_json_array_event_type_sizes<decltype(states), num_event_types>(
         daw::json::parse_json_select(json_config, "events"));
@@ -449,16 +444,14 @@ namespace cfepi {
     auto always_true_event = [](const auto &param __attribute__((unused)),
                                const auto &state __attribute__((unused)),
                                std::default_random_engine &rng __attribute__((unused))) { return
-    (true); };
-    auto always_true_state
-        = [](const auto &first_param __attribute__((unused)),
-             const auto &second_param __attribute__((unused)),
-             std::default_random_engine &rng __attribute__((unused))) { return (true); };
-    auto do_nothing = [](auto &param __attribute__((unused)),
-                         std::default_random_engine &rng __attribute__((unused))) { return; };
-    typedef typename daw::json::parse_json_array_event_type_struct<
-        decltype(states), event_sizes>::any_event_type any_config_event_type;
-    typedef typename cfepi::any_event<any_config_event_type>::type any_config_event;
+    (true); }; auto always_true_state = [](const auto &first_param __attribute__((unused)), const
+    auto &second_param __attribute__((unused)), std::default_random_engine &rng
+    __attribute__((unused))) { return (true); }; auto do_nothing = [](auto &param
+    __attribute__((unused)), std::default_random_engine &rng __attribute__((unused))) { return;
+    };
+    typedef typename daw::json::parse_json_array_event_type_struct<decltype(states),
+    event_sizes>::any_event_type any_config_event_type; typedef typename
+    cfepi::any_event<any_config_event_type>::type any_config_event;
 
     auto config_worlds = daw::json::parse_json_filtration_setups<decltype(states),
     any_config_event>( daw::json::parse_json_select(json_config, "worlds"), states);
@@ -482,6 +475,7 @@ namespace cfepi {
     cfepi::run_simulation<decltype(states), any_config_event_type, any_config_event>(
       event_type_tuple, initial_conditions, event_rates, config_worlds, epidemic_length,
     simulation_seed);
+    */
   }
 }  // namespace cfepi
 
